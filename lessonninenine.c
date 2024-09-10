@@ -22,6 +22,9 @@ int main()
         default: printf("Illegal grade\n");
                 break;
 
-        printf("\nAll done");
+    printf("\nAll done");
+    
+    
+        
     }
 }
