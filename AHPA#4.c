@@ -16,19 +16,13 @@ int main(void)
 
     char acctType;
     char name; 
-
-    //testing
-    /*
-    for (int i = 0; i <2; i++){
-        for(int j = 0; j <2; j++){
-            printf("%d \n", abATM[i][j]);
-        }
-    }
-
-    */
     
+    // specifies the user
+
     printf("Enter your name:\n");
     scanf("%c", &name);
+
+    // enters money data according to name given
 
     if(name == 'a')
     {
@@ -41,6 +35,8 @@ int main(void)
         savings = abATM[1][1];
     }
 
+    // asks for specific account type for withdrawal
+
     scanf("%c", &acctType);
     printf("Would you like to withdraw from (c)hecking or (s)avings?\n");
     scanf("%c", &acctType);
@@ -52,15 +48,22 @@ int main(void)
         break;
     }
 
+    // asks how much to withdraw
+
     printf("How much would you like to withdraw?\n");
     scanf("%d", &withdraw);
 
+    // if statement if the withdrawal is above $200
+    
     if(withdraw > 200)
     {
         printf("You can only withdraw up to $200.\n");
+        //how to get this out of the code?
     }
     
     printf("Amount in account to be withdrawn from: $%d\n", difference);
+
+    // if statements to print and subtract differences in the acct.
 
     if(withdraw > 100 )
     {
@@ -114,8 +117,7 @@ int main(void)
         }
     }
 
-    printf("Withdrawl is here: %d\n", withdraw);
-
+    // shows the final amount for the acct.
     printf("Amount in account after withdrawal: $%d\n", difference);
 
     return 0;
