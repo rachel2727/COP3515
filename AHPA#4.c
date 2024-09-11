@@ -6,7 +6,7 @@
 
 int main(void)
 {
-    // initialize a and b array, checking and savings for a and b
+    // initialize a and b array, checking and savings for a and b, and variables to keep track of balances
 
     int abATM[2][2] = {500, 1000, 750, 325};
     int checking;
@@ -54,18 +54,18 @@ int main(void)
     scanf("%d", &withdraw);
 
     // if statement if the withdrawal is above $200
-    
-    if(withdraw > 200)
+
+    if(withdraw >= 201)
     {
         printf("You can only withdraw up to $200.\n");
-        //how to get this out of the code?
+        return 0;
     }
     
     printf("Amount in account to be withdrawn from: $%d\n", difference);
 
     // if statements to print and subtract differences in the acct.
 
-    if(withdraw > 100 )
+    if(withdraw > 100)
     {
         printf("$100 bill\n");
         difference = difference - 100;
@@ -79,28 +79,28 @@ int main(void)
         withdraw = withdraw - 100;
     }
 
-    if(withdraw > 50)
+    if(withdraw > 50 || withdraw >= 50)
     {
         printf("$50 bill\n");
         difference = difference - 50;
         withdraw = withdraw - 50;
     }
 
-    if(withdraw > 20)
+    if(withdraw > 20 || withdraw >= 20)
     {
         printf("$20 bill\n");
         difference = difference - 20;
         withdraw = withdraw - 20;
     }
 
-    if(withdraw > 10)
+    if(withdraw > 10 || withdraw >= 10)
     {
         printf("$10 bill\n");
         difference = difference - 10;
         withdraw = withdraw - 10;
     }
 
-    if(withdraw > 5)
+    if(withdraw > 5 || withdraw >= 5)
     {
         printf("$5 bill\n");
         difference = difference - 5;
@@ -118,6 +118,7 @@ int main(void)
     }
 
     // shows the final amount for the acct.
+
     printf("Amount in account after withdrawal: $%d\n", difference);
 
     return 0;
