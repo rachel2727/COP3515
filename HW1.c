@@ -21,6 +21,7 @@ int main()
     int minPass;
     bool passPhrases = true; 
     bool optTests = true;
+    bool strong_pass = true;
     int passPhrase_len;
     int optTest_min;
     int failed_tests = 0;
@@ -95,6 +96,7 @@ int main()
     printf("\n");
 
     // Required tests
+    printf("Required tests:\n\n");
 
     //Enforce min and max length
    
@@ -102,16 +104,18 @@ int main()
     {
         for(int i = 6; i < line_count; i++)
         { 
-            printf("Proposed password: %s\n", total_file[i]);
+            //printf("Proposed password: %s\n", total_file[i]);
             if(strnlen(total_file[i], MAXLEN) > maxPass)
             {
-                printf("The password must be fewer than %d characters.\n", maxPass);
+                //printf("The password must be fewer than %d characters.\n", maxPass);
                 failed_tests++;
+                strong_pass = false;
             }
             if(strnlen(total_file[i], MAXLEN) < minPass)
             {
-                printf("The password must be at least %d characters long.\n", minPass);
+                //printf("The password must be at least %d characters long.\n", minPass);
                 failed_tests++;
+                strong_pass = false;
             }
         }
     }
@@ -119,31 +123,62 @@ int main()
     {
         for(int i = 4; i < line_count; i++)
         { 
-            printf("Proposed password: %s", total_file[i]);
+            //printf("Proposed password: %s", total_file[i]);
             if(strnlen(total_file[i], MAXLEN) > maxPass)
             {
-                printf("The password must be fewer than %d characters.\n", maxPass);
+                //printf("The password must be fewer than %d characters.\n", maxPass);
                 failed_tests++;
+                strong_pass = false;
             }
             if(strnlen(total_file[i], MAXLEN) < minPass)
             {
-                printf("The password must be at least %d characters long.\n", minPass);
+                //printf("The password must be at least %d characters long.\n", minPass);
                 failed_tests++;
+                strong_pass = false;
             }
         }
     }
     
-    //Forbid repeats
+
+    //Forbid repeats... idkk how to get this to repeat for every password.
+    int three_matches = 3;
+    char *searcher;
+    char holder[MAXLEN];
 
     for(int i = 4; i < line_count; i++)
     {
-        for(int j = 0; j < MAXLEN; j++)
-        {
-            
+       // printf("%s: string\n", total_file[i]);
+        strncpy(holder, total_file[i], strlen(total_file[i]));
+    }
+    //printf("%s: holder\n", holder);
+    searcher = strchr(holder, holder[three_matches]);
+
+    do{
+        searcher = strchr(searcher + 1, holder[three_matches]);
+        three_matches--;
+    }while(three_matches > 0);
+    
+    if(three_matches == 0)
+    {
+        printf("The password may not contain a sequence of three or more repeated characters.\n");
+        failed_tests++;
+        strong_pass = false;
+    }
+
+    //Must contain letters, numbers and symbols
+    if(optTests == 1)
+    {
+        for(int i = 6; i < line_count; i++)
+        { 
+            if(total_file[i])
         }
     }
-    //Must contain letters, numbers and symbols
+    else{
+        for(int i = 4; i < line_count; i++)
+        {
 
+        }
+    }
 
     //Optional Tests
 
@@ -155,12 +190,15 @@ int main()
     
 
 
-
    // printf("%d max\n", maxPass);
    // printf("%d min\n", minPass);
     //printf("%d passphrase\n", passPhrases);
     //printf("%d opt tests\n", optTests);
-
+    
+    if(strong_pass == false)
+        printf("Strong? --> false.\n");
+    else
+        printf("Strong? --> passed.\n");
    
 
 
