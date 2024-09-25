@@ -15,10 +15,12 @@ Rachel Singh
 #define MINLEN 12
 #define MAXLINE 100
 
-char forbidrepeats(char *password);
-char let_num_spec(char *password);
-char min_max(char *password, int max, int min, int linecount, bool file);
-int optional_Tests(char *password, int minTests);
+int forbidrepeats(char *password, int test_stats);
+int let_num_spec(char *password, int test_stats);
+int min_max(char *password, int max, int min, int test_stats,  bool passphrases);
+int optional_Tests(char *password, int minTests, int total_stats);
+bool pass_phrases(char *password, bool passphrase, int max);
+bool pass_fail(int opt_passes, int req_passes);
 
 int main()
 {
@@ -26,10 +28,9 @@ int main()
     int minPass;
     bool passPhrases = true; 
     bool optTests = true;
-    bool strong_pass = true;
+    bool strong_pass = false;
     int passPhrase_len;
     int optTest_min;
-    int failed_tests = 0;
     int passed_tests = 0;
     char str[MAXLINE];
     char total_file[MAXLINE][MAXLEN];
@@ -99,12 +100,17 @@ int main()
     printf("\n");
 
     // Required tests
-    printf("Required tests:\n\n");
+    
 
     //Enforce min and max length
     //Forbid repeats... 
     //Must contain letters, numbers and symbols
-
+    int test = 0;
+    int sum = 0;
+    int failed_tests = 0;
+    int opt_fails = 0;
+    int req_fails = 0;
+    int total_failed = 0;
    
     if(optTests == 1)
     {
@@ -112,17 +118,70 @@ int main()
         { 
             printf("Proposed password: %s\n", total_file[i]);
 
-            //strcpy(holder3, total_file[i]);
-            //min_max(holder3, maxPass, minPass, line_count, optTests);
-            //printf("\n");
-           // strcpy(holder, total_file[i]);
-           // forbidrepeats(holder);
-           // printf("\n");
-           // strcpy(holder2, total_file[i]);
-            //let_num_spec(holder2);
-           // printf("\n");
+            printf("Required tests:\n");
+
+            test = 0;
+            req_fails = 0;
+            strcpy(holder, total_file[i]);
+            test = forbidrepeats(holder, passed_tests);
+
+            if(test == 1)
+            {
+                req_fails = 1;
+            }
+            total_failed += req_fails;
+
+            test = 0;
+            req_fails = 0;
+            strcpy(holder2, total_file[i]);
+            test = let_num_spec(holder2, passed_tests);
+
+            if(test == 1)
+            {
+                req_fails = 1;
+            }
+            total_failed += req_fails;
+
+            test = 0;
+            req_fails = 0;
+            strcpy(holder3, total_file[i]);
+            test = min_max(holder3, maxPass, minPass, passed_tests, passPhrases);
+
+            if(test == 1)
+            {
+                req_fails = 1;
+            }
+            total_failed += req_fails;
+
+            printf("\nOptional Tests: \n");
+
+            test = 0;
+            req_fails = 0;
             strcpy(holder4, total_file[i]);
-            optional_Tests(holder4, optTest_min);
+            test = optional_Tests(holder4, optTest_min, passed_tests);
+
+            opt_fails = test;
+            total_failed += opt_fails;
+
+            printf("total failed: %d\n", total_failed);
+            passed_tests = 7 - total_failed;
+            printf("total passed: %d\n", passed_tests);
+
+            if(passed_tests > total_failed)
+                strong_pass = true;
+            else{
+                strong_pass = false;
+            }
+
+            if(strong_pass == false)
+                printf("Strong? --> false.\n");
+            else
+                printf("Strong? --> passed.\n");
+
+            total_failed = 0;
+            passed_tests = 0;
+
+            printf("\n");
         }
     }
     else
@@ -131,40 +190,73 @@ int main()
         { 
             printf("Proposed password: %s\n", total_file[i]);
 
+            printf("Required tests:\n");
+            
             strcpy(holder3, total_file[i]);
-            min_max(holder3, maxPass, minPass, line_count, optTests);
+            test = min_max(holder3, maxPass, minPass, passed_tests, passPhrases);
+
+            if(test == 1)
+            {
+                failed_tests = 1;
+            }
+            total_failed += failed_tests;
+
             printf("\n");
+
+            test = 0;
+            failed_tests = 0;
             strcpy(holder, total_file[i]);
-            forbidrepeats(holder);
+            test = forbidrepeats(holder, passed_tests);
+
+            if(test >= 1)
+            {
+                failed_tests = 1;
+            }
+            total_failed += failed_tests;
+
             printf("\n");
+
+            test = 0;
+            failed_tests = 0;
             strcpy(holder2, total_file[i]);
-            let_num_spec(holder2);
+            test = let_num_spec(holder2, passed_tests);
+
+            if(test >= 1)
+            {
+                failed_tests = 1;
+            }
+            total_failed += failed_tests;
+
+            printf("total failed: %d\n", total_failed);
+            passed_tests = 3 - total_failed;
+            printf("total passed: %d\n", passed_tests);
+
+            if(passed_tests > total_failed)
+                strong_pass = true;
+            else{
+                strong_pass = false;
+            }
+            
+            if(strong_pass == false)
+                printf("Strong? --> false.\n");
+            else
+                printf("Strong? --> passed.\n");
+   
+
+            total_failed = 0;
+            passed_tests = 0;
+
+            printf("\n");
         }
     }
     
-    
-
-    //Optional Tests
-
-    // Must contain one lowercase letter
-    // Must contain one uppercase letter
-    // Must contain at least two digits
-    // contain at least 2 special characters
-
-
-    if(strong_pass == false)
-        printf("Strong? --> false.\n");
-    else
-        printf("Strong? --> passed.\n");
-   
-
 
     fclose(passFile);
     return 0;
 
 }
 
-char forbidrepeats(char *password)
+int forbidrepeats(char *password, int test_stats)
 {
     char checker = password[0];
     int counter = 1;
@@ -176,6 +268,7 @@ char forbidrepeats(char *password)
             if(counter == 3)
             {
                 printf("Too many repeated characters.\n");
+                test_stats++;
                 break;
             }
         }
@@ -185,10 +278,11 @@ char forbidrepeats(char *password)
             counter = 1;
         }
     }
+    return test_stats;
      
 }
 
-char let_num_spec(char *password)
+int let_num_spec(char *password, int test_stats)
 {
     bool spec_char = false;
     bool letters = false;
@@ -213,25 +307,46 @@ char let_num_spec(char *password)
     
     if(spec_char == true && numbers == true && letters == true)
         printf("passed.\n");
-    else
+    else{
         printf("The password lacks either a special character, number or letter.\n");
-        
+        test_stats++;
+    }
+    
+    return test_stats;
+
 }
 
-char min_max(char *password, int max, int min, int linecount, bool file)
+int min_max(char *password, int max, int min, int test_stats, bool passphrases)
 {
+    int pPhrase_allowed;
+
     if(strlen(password) >= max)
     {
-        printf("The password must be fewer than %d characters.\n", max);
+        if(strlen(password) >= 20)
+            pPhrase_allowed = pass_phrases(password, passphrases, max);
+            if(pPhrase_allowed > 0)
+                test_stats--;
+        else    
+            printf("The password must be fewer than %d characters.\n", max);
+    }
+    else
+    {
+        test_stats++;
     }   
     if(strlen(password) <= min)
     {
         printf("The password must be at least %d characters long.\n", min);
     }
+    else
+    {
+        test_stats++;
+    }
+
+    return test_stats;
 
 }
 
-int optional_Tests(char *password, int minTests)
+int optional_Tests(char *password, int minTests, int total_stats)
 {
     bool passes1 = false;
     bool fails1 = false;
@@ -243,25 +358,43 @@ int optional_Tests(char *password, int minTests)
     int is_special = 0;
     int pass_counter = 0;
     int fail_counter = 0;
-
-    //printf("%d the min\n", minTests);
+    int is_letter = 0;
+    int min = 0;
 
     for(int i = 0; i < strlen(password); i++)
     {
         if(password[i] >= 'a' && password[i] <= 'z' || password[i] >= 'A' && password[i] <= 'Z')
         {
+            if(min < minTests)
+            {
+                min++;
+            }
             passes1 = true;
+            is_letter++;
         }
         if(password[i] >= '0' && password[i] <= '9')
         {
+            if(min <= minTests)
+            {
+                min++;
+            }
             is_digit++;
             
         }
         if(password[i]>= 33 && password[i] <= 47 || password[i] >= 58 && password[i] <= 64 || password[i] >= 91 && password[i] <= 96 || password[i] >= 123 && password[i] <= 126)
         {
+            if(min <= minTests)
+            {
+                min++;
+            }
             is_special++;
              
         }
+    }
+
+    if(is_letter == 0)
+    {
+        fails1 = true;
     }
 
     if(is_digit >= 2)
@@ -307,6 +440,25 @@ int optional_Tests(char *password, int minTests)
     {
         fail_counter++;
     }
-    printf("passlowercase %d | pass digit %d | pass special %d | failcase %d | fail digit %d | fail special %d | isdigit %d | is special %d\n", passes1, passes2, passes3, fails1, fails2, fails3, is_digit, is_special);
-    printf("%d pass counter %d fail counter\n", pass_counter, fail_counter);
+    if(min >= minTests && pass_counter >= minTests)
+    {
+        printf("Strong password for opt tests.\n");
+    }
+
+    printf("Total optional tests passed: %d\n", fail_counter);
+
+    return fail_counter;
+}
+
+bool pass_phrases(char *password, bool passphrase, int max)
+{
+    if(passphrase == true)
+    {
+        printf("Pass phrases allowed.\n");
+    }
+    else{
+        printf("The password must be fewer than %d characters.\n", max);
+    }
+
+    return passphrase;
 }
