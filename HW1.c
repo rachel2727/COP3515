@@ -20,238 +20,40 @@ int let_num_spec(char *password, int test_stats);
 int min_max(char *password, int max, int min, int test_stats,  bool passphrases);
 int optional_Tests(char *password, int minTests, int total_stats);
 bool pass_phrases(char *password, bool passphrase, int max);
-bool pass_fail(int opt_passes, int req_passes);
+void test_runner(bool optiTest, int otMin, char *main_file, int linecount, int max, int min, bool passP_allow);
+void file_loader(FILE *pFile1);
 
 int main()
 {
-    int maxPass;
-    int minPass;
-    bool passPhrases = true; 
-    bool optTests = true;
-    bool strong_pass = false;
-    int passPhrase_len;
-    int optTest_min;
-    int passed_tests = 0;
-    char str[MAXLINE];
-    char total_file[MAXLINE][MAXLEN];
-    char holder[MAXLEN];
-    char holder2[MAXLEN];
-    char holder3[MAXLEN];
-    char holder4[MAXLEN];
+    
     int line_count = 0;
 
     FILE *passFile; 
+    FILE *passFile2;
+    FILE *passFile3;
 
-    passFile = fopen("Proposed Passwords #2.txt", "r");
+    passFile = fopen("Proposed passwords #1.txt", "r");
+    passFile2 = fopen("Proposed Passwords #2.txt", "r");
+    passFile3 = fopen("Proposed Passwords #3.txt", "r");
 
-    if(passFile == NULL)
+    if(passFile == NULL || passFile2 == NULL || passFile3 == NULL)
     {
         printf("There was an error.\n");
         return 1;
     }    
 
     printf("Processing file #1...\n\n");
-
-    while(fgets(str, MAXLEN, passFile) != NULL)
-    {   
-        if(*str == '\n')
-        {
-            continue;
-        }
-        strcpy(total_file[line_count], str);
-        line_count++;
-    }
-        
-    maxPass = atoi(total_file[0]);
-    minPass = atoi(total_file[1]);
-
-    if(atoi(total_file[2]) == 1)
-    {
-        passPhrase_len = atoi(total_file[3]);
-    }
-    else
-    {
-        passPhrases = false;
-    }
-
-    if(atoi(total_file[4]) == 1)
-    {
-        optTest_min = atoi(total_file[5]);
-    }
-    else
-    {
-        optTests = false;
-    }
-
-    printf("Maximum password length: %d\n", maxPass);
-    printf("Minimum password length: %d\n", minPass);
-
-     if(passPhrases == false)
-        printf("Pass phrases are NOT allowed.\n");
-    else
-        printf("Pass phrases are permitted.\n");
+    file_loader(passFile);
     
-    if(optTests == false)
-        printf("Optional Tests are NOT allowed.\n");
-    else   
-        printf("Optional Tests are permitted.\n");
+    printf("Processing file #2...\n\n");
+    file_loader(passFile2);
 
-
-    printf("\n");
-
-    // Required tests
-    
-
-    //Enforce min and max length
-    //Forbid repeats... 
-    //Must contain letters, numbers and symbols
-    int test = 0;
-    int sum = 0;
-    int failed_tests = 0;
-    int opt_fails = 0;
-    int req_fails = 0;
-    int total_failed = 0;
-   
-    if(optTests == 1)
-    {
-        for(int i = 6; i < line_count; i++)
-        { 
-            printf("Proposed password: %s\n", total_file[i]);
-
-            printf("Required tests:\n");
-
-            test = 0;
-            req_fails = 0;
-            strcpy(holder, total_file[i]);
-            test = forbidrepeats(holder, passed_tests);
-
-            if(test == 1)
-            {
-                req_fails = 1;
-            }
-            total_failed += req_fails;
-
-            test = 0;
-            req_fails = 0;
-            strcpy(holder2, total_file[i]);
-            test = let_num_spec(holder2, passed_tests);
-
-            if(test == 1)
-            {
-                req_fails = 1;
-            }
-            total_failed += req_fails;
-
-            test = 0;
-            req_fails = 0;
-            strcpy(holder3, total_file[i]);
-            test = min_max(holder3, maxPass, minPass, passed_tests, passPhrases);
-
-            if(test == 1)
-            {
-                req_fails = 1;
-            }
-            total_failed += req_fails;
-
-            printf("\nOptional Tests: \n");
-
-            test = 0;
-            req_fails = 0;
-            strcpy(holder4, total_file[i]);
-            test = optional_Tests(holder4, optTest_min, passed_tests);
-
-            opt_fails = test;
-            total_failed += opt_fails;
-
-            printf("total failed: %d\n", total_failed);
-            passed_tests = 7 - total_failed;
-            printf("total passed: %d\n", passed_tests);
-
-            if(passed_tests > total_failed)
-                strong_pass = true;
-            else{
-                strong_pass = false;
-            }
-
-            if(strong_pass == false)
-                printf("Strong? --> false.\n");
-            else
-                printf("Strong? --> passed.\n");
-
-            total_failed = 0;
-            passed_tests = 0;
-
-            printf("\n");
-        }
-    }
-    else
-    {
-        for(int i = 4; i < line_count; i++)
-        { 
-            printf("Proposed password: %s\n", total_file[i]);
-
-            printf("Required tests:\n");
-            
-            strcpy(holder3, total_file[i]);
-            test = min_max(holder3, maxPass, minPass, passed_tests, passPhrases);
-
-            if(test == 1)
-            {
-                failed_tests = 1;
-            }
-            total_failed += failed_tests;
-
-            printf("\n");
-
-            test = 0;
-            failed_tests = 0;
-            strcpy(holder, total_file[i]);
-            test = forbidrepeats(holder, passed_tests);
-
-            if(test >= 1)
-            {
-                failed_tests = 1;
-            }
-            total_failed += failed_tests;
-
-            printf("\n");
-
-            test = 0;
-            failed_tests = 0;
-            strcpy(holder2, total_file[i]);
-            test = let_num_spec(holder2, passed_tests);
-
-            if(test >= 1)
-            {
-                failed_tests = 1;
-            }
-            total_failed += failed_tests;
-
-            printf("total failed: %d\n", total_failed);
-            passed_tests = 3 - total_failed;
-            printf("total passed: %d\n", passed_tests);
-
-            if(passed_tests > total_failed)
-                strong_pass = true;
-            else{
-                strong_pass = false;
-            }
-            
-            if(strong_pass == false)
-                printf("Strong? --> false.\n");
-            else
-                printf("Strong? --> passed.\n");
-   
-
-            total_failed = 0;
-            passed_tests = 0;
-
-            printf("\n");
-        }
-    }
-    
+    printf("Processing file #3...\n\n");
+    file_loader(passFile3);
 
     fclose(passFile);
+    fclose(passFile2);
+    fclose(passFile3);
     return 0;
 
 }
@@ -306,7 +108,7 @@ int let_num_spec(char *password, int test_stats)
     }
     
     if(spec_char == true && numbers == true && letters == true)
-        printf("passed.\n");
+        return test_stats;
     else{
         printf("The password lacks either a special character, number or letter.\n");
         test_stats++;
@@ -445,7 +247,7 @@ int optional_Tests(char *password, int minTests, int total_stats)
         printf("Strong password for opt tests.\n");
     }
 
-    printf("Total optional tests passed: %d\n", fail_counter);
+    printf("Total optional tests passed: %d\n", pass_counter);
 
     return fail_counter;
 }
@@ -461,4 +263,227 @@ bool pass_phrases(char *password, bool passphrase, int max)
     }
 
     return passphrase;
+}
+
+void test_runner(bool optiTest, int otMin, char *main_file, int linecount, int maxp, int min, bool passP_allow)
+{
+    int test = 0;
+    int failed_tests = 0;
+    int opt_fails = 0;
+    int req_fails = 0;
+    bool flag = true;
+    bool strong_pass = false;
+    int total_failed = 0;
+     int passed_tests = 0;
+    char holder[MAXLEN];
+    char holder2[MAXLEN];
+    char holder3[MAXLEN];
+    char holder4[MAXLEN];
+
+    if(optiTest == 1)
+    {
+        
+        printf("Proposed password: %s\n", main_file);
+
+        printf("Required tests:\n");
+
+        test = 0;
+        req_fails = 0;
+        strcpy(holder, main_file);
+        test = forbidrepeats(holder, passed_tests);
+
+        if(test == 1)
+        {
+            req_fails = 1;
+            flag = false;
+        }
+        total_failed += req_fails;
+
+        test = 0;
+        req_fails = 0;
+        strcpy(holder2, main_file);
+        test = let_num_spec(holder2, passed_tests);
+
+        if(test == 1)
+        {
+            req_fails = 1;
+            flag = false;
+        }
+        total_failed += req_fails;
+
+        test = 0;
+        req_fails = 0;
+        strcpy(holder3, main_file);
+        test = min_max(holder3, maxp, min, passed_tests, passP_allow);
+
+        if(test == 1)
+        { 
+            req_fails = 1;
+            flag = false;
+        }
+        total_failed += req_fails;
+
+        printf("\nOptional Tests: \n");
+
+        test = 0;
+        req_fails = 0;
+        strcpy(holder4, main_file);
+        test = optional_Tests(holder4, otMin, passed_tests);
+
+        opt_fails = test;
+        total_failed += opt_fails;
+
+        printf("total failed: %d\n", total_failed);
+        passed_tests = 7 - total_failed;
+        printf("total passed: %d\n", passed_tests);
+
+        if(passed_tests > total_failed && flag == true && opt_fails < otMin)
+            strong_pass = true;
+        else{
+            strong_pass = false;
+        }
+
+        if(strong_pass == false)
+        printf("Strong? --> false.\n");
+        else
+            printf("Strong? --> passed.\n");
+
+        total_failed = 0;
+        passed_tests = 0;
+        opt_fails = 0;
+        req_fails = 0;
+        flag = true;
+            
+        printf("\n");
+        
+    }
+    else
+    {
+    
+        printf("Proposed password: %s\n", main_file);
+
+        printf("Required tests:\n");
+            
+        strcpy(holder3, main_file);
+        test = min_max(holder3, maxp, min, passed_tests, passP_allow);
+
+        if(test == 1)
+        {
+            failed_tests = 1;
+        }
+        total_failed += failed_tests;
+
+        printf("\n");
+
+        test = 0;
+        failed_tests = 0;
+        strcpy(holder, main_file);
+        test = forbidrepeats(holder, passed_tests);
+
+        if(test >= 1)
+        {
+            failed_tests = 1;
+        }
+        total_failed += failed_tests;
+
+        printf("\n");
+
+        test = 0;
+        failed_tests = 0;
+        strcpy(holder2, main_file);
+        if(test >= 1)
+        {
+            failed_tests = 1;
+        }
+        total_failed += failed_tests;
+
+        printf("total failed: %d\n", total_failed);
+        passed_tests = 3 - total_failed;
+        printf("total passed: %d\n", passed_tests);
+
+        if(passed_tests > total_failed)
+            strong_pass = true;
+        else{
+            strong_pass = false;
+        }
+            
+        if(strong_pass == false)
+            printf("Strong? --> false.\n");
+        else
+            printf("Strong? --> passed.\n");
+   
+        total_failed = 0;
+        passed_tests = 0;
+
+        printf("\n");
+        
+    }
+    return;
+}
+
+void file_reader(FILE *pFile1)
+{
+    int maxPass;
+    int minPass;
+    bool passPhrases = true; 
+    bool optTests = true;
+    int passPhrase_len;
+    int optTest_min;
+    char str[MAXLINE];
+    char total_file[MAXLINE][MAXLEN];
+    int line_count = 0;
+
+    //This is where we load files...
+
+    while(fgets(str, MAXLEN, pFile1) != NULL)
+    {   
+        if(*str == '\n')
+        {
+            continue;
+        }
+        strcpy(total_file[line_count], str);
+        line_count++;
+    }
+        
+    maxPass = atoi(total_file[0]);
+    minPass = atoi(total_file[1]);
+
+    if(atoi(total_file[2]) == 1)
+    {
+        passPhrase_len = atoi(total_file[3]);
+    }
+    else
+    {
+        passPhrases = false;
+    }
+
+    if(atoi(total_file[4]) == 1)
+    {
+        optTest_min = atoi(total_file[5]);
+    }
+    else
+    {
+        optTests = false;
+    }
+
+    printf("Maximum password length: %d\n", maxPass);
+    printf("Minimum password length: %d\n", minPass);
+
+     if(passPhrases == false)
+        printf("Pass phrases are NOT allowed.\n");
+    else
+        printf("Pass phrases are permitted.\n");
+    
+    if(optTests == false)
+        printf("Optional Tests are NOT allowed.\n");
+    else   
+        printf("Optional Tests are permitted.\n");
+
+
+    printf("\n");
+
+    for(int i = 0; i <line_count; i++)
+    {
+        printf("%s", total_file[i]);
+    }
 }
